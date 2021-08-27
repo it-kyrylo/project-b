@@ -7,6 +7,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using ProjectB.Services;
+using Refit;
+using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +35,14 @@ namespace ProjectB
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ProjectB", Version = "v1" });
             });
+            services.AddTransient<IHotelService, HotelService>();
+            var apihost = Configuration["ApiConfiguration:ApiHost"];
+            var apikey = Configuration["ApiConfiguration:ApiToken"];
+            services.AddRefitClient<IApiRequester>()
+                .ConfigureHttpClient(c => c.DefaultRequestHeaders.Add("x-rapidapi-host",apihost))
+                .ConfigureHttpClient(c => c.DefaultRequestHeaders.Add("x-rapidapi-key", apikey))
+                .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://hotels4.p.rapidapi.com/"));
+            services.AddAutoMapper(typeof(Startup));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
