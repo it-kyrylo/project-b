@@ -1,37 +1,35 @@
-﻿
-using AutoMapper;
-using ProjectB.deserialize;
-using ProjectB.deserialize.HotelDetailsFromJSON;
-using ProjectB.deserialize.HotelsFromJSON;
+﻿using AutoMapper;
+using ProjectB.Clients;
+using ProjectB.Clients.Models;
+using ProjectB.Clients.Models.HotelDetails;
+using ProjectB.Clients.Models.Hotels;
 using ProjectB.ViewModels;
-using System;
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace ProjectB.Services
 {
     public class HotelService : IHotelService
     {
-        private IApiRequester apiRequester;
+        private IHotelClients hotelClients;
         private IMapper mapper;
 
-        public HotelService(IApiRequester apiRequester, IMapper mapper)
+        public HotelService(IHotelClients hotelClients, IMapper mapper)
         {
-            this.apiRequester = apiRequester;
+            this.hotelClients = hotelClients;
             this.mapper = mapper;
         }
 
         public async Task<int> GetDestinationIdAsync(string cityName)
         {
-            var destination = await this.apiRequester.Destination(cityName);
+            var destination = await this.hotelClients.GetDestination(cityName);
 
 
             var destinationId = 0;
             foreach (var item in destination.Suggestions)
             {
-                foreach (var number in item.Entities)
+                foreach (var number in item.CityProperties)
                 {
                     destinationId = int.Parse(number.DestinationId);
                     break;
@@ -44,7 +42,7 @@ namespace ProjectB.Services
 
         public async Task<ICollection<HotelsViewModel>> GetHotelsByDestinationIdAsync(int id)
         {
-            var hotels = await this.apiRequester.Hotels(id);
+            var hotels = await this.hotelClients.GetHotels(id);
             var hotelsViewModel = new List<HotelsViewModel>();
 
             foreach (var item in hotels.Data.Body.SearchResults.Results)
@@ -59,7 +57,7 @@ namespace ProjectB.Services
 
         public async Task<HotelOverview> GetHotelDetailsById(int id, string checkIn, string checkOut)
         {
-            var hotelDetails = await this.apiRequester.Hotel(id, checkIn, checkOut);
+            var hotelDetails = await this.hotelClients.GetHotel(id, checkIn, checkOut);
             
             return hotelDetails;
         }

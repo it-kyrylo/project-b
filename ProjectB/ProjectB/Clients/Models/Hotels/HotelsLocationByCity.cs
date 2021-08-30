@@ -1,4 +1,4 @@
-﻿namespace ProjectB.deserialize.HotelsFromJSON
+﻿namespace ProjectB.Clients.Models.Hotels
 {
     public class HotelsLocationByCity
     {

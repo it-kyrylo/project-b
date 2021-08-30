@@ -1,4 +1,4 @@
-﻿namespace ProjectB.deserialize.HotelDetailsFromJSON
+﻿namespace ProjectB.Clients.Models.HotelDetails
 {
     public class FeaturedPrice
     {

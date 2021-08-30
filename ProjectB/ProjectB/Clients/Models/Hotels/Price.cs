@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ProjectB.deserialize.HotelsFromJSON
+namespace ProjectB.Clients.Models.Hotels
 {
     public class Price
     {

@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
-namespace ProjectB.deserialize.HotelsFromJSON
+namespace ProjectB.Clients.Models.Hotels
 {
     public class HotelByCity
     {

@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace ProjectB.deserialize
+﻿namespace ProjectB.Clients.Models
 {
-    public class Entity
+    public class CityProperty
     {
         public string GeoId { get; set; }
 

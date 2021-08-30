@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ProjectB.Clients;
 
 namespace ProjectB
 {
@@ -38,10 +39,11 @@ namespace ProjectB
             services.AddTransient<IHotelService, HotelService>();
             var apihost = Configuration["ApiConfiguration:ApiHost"];
             var apikey = Configuration["ApiConfiguration:ApiToken"];
-            services.AddRefitClient<IApiRequester>()
+            var apiurl = Configuration["ApiConfiguration:ApiUrl"];
+            services.AddRefitClient<IHotelClients>()
                 .ConfigureHttpClient(c => c.DefaultRequestHeaders.Add("x-rapidapi-host",apihost))
                 .ConfigureHttpClient(c => c.DefaultRequestHeaders.Add("x-rapidapi-key", apikey))
-                .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://hotels4.p.rapidapi.com/"));
+                .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiurl));
             services.AddAutoMapper(typeof(Startup));
         }
 

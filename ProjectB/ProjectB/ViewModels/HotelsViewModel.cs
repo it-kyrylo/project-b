@@ -1,4 +1,4 @@
-﻿using ProjectB.deserialize.HotelsFromJSON;
+﻿using ProjectB.Clients.Models.Hotels;
 using System.Collections.Generic;
 
 namespace ProjectB.ViewModels

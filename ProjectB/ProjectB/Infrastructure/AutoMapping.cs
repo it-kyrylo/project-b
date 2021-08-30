@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using ProjectB.deserialize.HotelsFromJSON;
+using ProjectB.Clients.Models.Hotels;
 using ProjectB.ViewModels;
 
-namespace ProjectB.Services
+namespace ProjectB.Infrastructure
 {
     public class AutoMapping : Profile
     {
