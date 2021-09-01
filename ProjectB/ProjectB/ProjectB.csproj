@@ -6,10 +6,14 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.9" />
     <PackageReference Include="Refit" Version="6.0.94" />
     <PackageReference Include="Refit.HttpClientFactory" Version="6.0.94" />
     <PackageReference Include="Refit.Newtonsoft.Json" Version="6.0.94" />
+    <PackageReference Include="SimpleInjector.Integration.AspNetCore" Version="5.3.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+    <PackageReference Include="Telegram.Bot" Version="16.0.2" />
+    <PackageReference Include="Telegram.Bot.Extensions.Polling" Version="0.2.0" />
   </ItemGroup>
 
 </Project>
