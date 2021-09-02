@@ -11,12 +11,6 @@ namespace ProjectB.Services
     public class StartBotService : IHostedService
     {
         private const int OneMinuteInMilliseconds = 60000;
-        //private readonly IServiceProvider _services;
-
-        //public StartBotService(IServiceProvider services)
-        //{
-        //    _services = services;
-        //}
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
@@ -26,7 +20,6 @@ namespace ProjectB.Services
 
         private async void SendNotifications(CancellationToken stoppingToken)
         {
-          //await SendMessages(_eventProvider.GetAllNotificationsToBeSentNow());
             await Task.Delay(OneMinuteInMilliseconds);
         }
 

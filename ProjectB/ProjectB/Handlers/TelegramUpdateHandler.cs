@@ -14,13 +14,6 @@ namespace ProjectB.Handlers
     public class TelegramUpdateHandler : ITelegramUpdateHandler
     {
 
-        //private readonly HandleUpdateService handleUpdateServise;
-
-        //public TelegramUpdateHandler(HandleUpdateService handleUpdateServise)
-        //{
-        //    this.handleUpdateServise = handleUpdateServise;
-        //}
-
         public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             if (update.Message == null && update.CallbackQuery == null)
@@ -34,20 +27,6 @@ namespace ProjectB.Handlers
             {
                 await botClient.SendTextMessageAsync(chatId, "running");
             }
-            
-
-            //try
-            //{
-            //    var nextState = await handler;
-            //    var chat = _stateProvider.GetChatState(chatId);
-            //    chat.State = nextState;
-            //    _stateProvider.SaveChatState(chat);
-            //    _stateFactory.GetState(nextState).BotSendMessage(botClient, chatId);
-            //}
-            //catch (Exception exception)
-            //{
-            //    await HandleErrorAsync(botClient, exception, cancellationToken).ConfigureAwait(false);
-            //}
         }
 
         public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)

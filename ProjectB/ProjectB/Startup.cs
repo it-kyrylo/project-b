@@ -51,7 +51,6 @@ namespace ProjectB
             var apihost = Configuration["ApiConfiguration:ApiHost"];
             var apikey = Configuration["ApiConfiguration:ApiToken"];
             var apiurl = Configuration["ApiConfiguration:ApiUrl"];
-            //services.AddSingleton<HandleUpdateService>();
             services.AddRefitClient<IHotelClients>()
                 .ConfigureHttpClient(c => c.DefaultRequestHeaders.Add("x-rapidapi-host",apihost))
                 .ConfigureHttpClient(c => c.DefaultRequestHeaders.Add("x-rapidapi-key", apikey))
