@@ -6,6 +6,7 @@ using ProjectB.Clients.Models.Hotels;
 using ProjectB.ViewModels;
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ProjectB.Services
@@ -21,7 +22,7 @@ namespace ProjectB.Services
             this.mapper = mapper;
         }
 
-        public async Task<int> GetDestinationIdAsync(string cityName)
+        public async Task<ICollection<HotelsViewModel>> GetDestinationIdAsync(string cityName)
         {
             var destination = await this.hotelClients.GetDestination(cityName);
 
@@ -37,7 +38,7 @@ namespace ProjectB.Services
                 break;
             }
 
-            return destinationId;
+            return await GetHotelsByDestinationIdAsync(destinationId);
         }
 
         public async Task<ICollection<HotelsViewModel>> GetHotelsByDestinationIdAsync(int id)
@@ -55,11 +56,18 @@ namespace ProjectB.Services
             return hotelsViewModel;
         }
 
-        public async Task<HotelOverview> GetHotelDetailsById(int id, string checkIn, string checkOut)
+        public async Task<HotelViewModel> GetHotelDetailsById(int id, string checkIn, string checkOut)
         {
             var hotelDetails = await this.hotelClients.GetHotel(id, checkIn, checkOut);
-            
-            return hotelDetails;
+            var Hotel = new HotelViewModel();
+            Hotel = this.mapper.Map(hotelDetails.HotelDetails.Hotel, Hotel);
+            var services = hotelDetails.HotelDetails.Hotel.Amenities.Where(x => x.Heading == "In the hotel")
+                .SelectMany(x => x.HotelService.Where(x => x.Heading == "Services")).ToArray();
+            foreach (var item in services)
+            {
+                Hotel.HotelService = item.ServiceDescription;
+            }
+            return Hotel;
         }
 
     }

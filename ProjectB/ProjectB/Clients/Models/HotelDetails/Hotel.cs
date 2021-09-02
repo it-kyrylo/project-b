@@ -21,8 +21,7 @@ namespace ProjectB.Clients.Models.HotelDetails
         [JsonIgnore]
         public object AtAGlance { get; set; }
 
-        [JsonIgnore]
-        public string[] Amenities { get; set; }
+        public Amenities[] Amenities { get; set; }
 
         [JsonIgnore]
         public object HygieneAndCleanliness { get; set; }
