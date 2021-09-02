@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ProjectB.Clients;
+using ProjectB.Infrastructure;
 
 namespace ProjectB
 {
@@ -30,7 +31,8 @@ namespace ProjectB
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.AddMemoryCache();
+            services.AddSingleton<CacheFilter>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
