@@ -5,10 +5,8 @@ using ProjectB.Clients.Models.HotelDetails;
 using ProjectB.Clients.Models.Hotels;
 using ProjectB.Infrastructure;
 using ProjectB.ViewModels;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Linq;
 using System;
 
 namespace ProjectB.Services
@@ -18,12 +16,14 @@ namespace ProjectB.Services
         private IHotelClients hotelClients;
         private IMapper mapper;
         private CacheFilter cacheFilter;
+        private readonly ICacheFilter<HotelOverview> _hotelOverviewCache;
 
-        public HotelService(IHotelClients hotelClients, IMapper mapper, CacheFilter cacheFilter)
+        public HotelService(IHotelClients hotelClients, IMapper mapper, CacheFilter cacheFilter, ICacheFilter<HotelOverview> hotelOverviewCache)
         {
             this.hotelClients = hotelClients;
             this.mapper = mapper;
             this.cacheFilter = cacheFilter;
+            _hotelOverviewCache = hotelOverviewCache;
         }
 
         public async Task<int> GetDestinationIdAsync(string cityName)
@@ -88,10 +88,16 @@ namespace ProjectB.Services
 
         public async Task<HotelOverview> GetHotelDetailsById(int id, string checkIn, string checkOut)
         {
-            var hotelDetails = await this.hotelClients.GetHotel(id, checkIn, checkOut);
-            
+            var cacheKey = $"{id}_{checkIn}_{checkOut}";
+            var hotelDetails = _hotelOverviewCache.Get(cacheKey);
+
+            if (hotelDetails == null)
+            {
+                hotelDetails = await hotelClients.GetHotel(id, checkIn, checkOut);
+                _hotelOverviewCache.Set(cacheKey, hotelDetails);
+            }
+
             return hotelDetails;
         }
-
     }
 }

@@ -1,47 +1,25 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ProjectB.Infrastructure
 {
-    public class CacheFilter
+    public class CacheFilter<T> : ICacheFilter<T> where T : class
     {
-        private IMemoryCache memoryCache;
+        private readonly IMemoryCache _memoryCache;
+
         public CacheFilter(IMemoryCache memoryCache)
         {
-            this.memoryCache = memoryCache;
+            _memoryCache = memoryCache;
         }
-        public object GetCache(string cacheKey)
+
+        public T Get(string cacheKey)
         {
-            object value;
-            memoryCache.TryGetValue(cacheKey, out value);
-            return value;
+            return _memoryCache.Get<T>(cacheKey);
         }
-        public Task SetCache(string cacheKey, object value)
+
+        public T Set(string cacheKey, T item)
         {
-            var cacheExpiryOptions = new MemoryCacheEntryOptions
-            {
-                AbsoluteExpiration = DateTime.Now.AddHours(2),
-                Priority = CacheItemPriority.High,
-                SlidingExpiration = TimeSpan.FromHours(1),
-                Size = 64
-            };
-            memoryCache.Set(cacheKey, value, cacheExpiryOptions);
-            return Task.CompletedTask;
-        }
-        public Task SetCache(string cacheKey, object value, int absoluteExpiration, int slidingExpiration)
-        {
-            var cacheExpiryOptions = new MemoryCacheEntryOptions
-            {
-                AbsoluteExpiration = DateTime.Now.AddHours(absoluteExpiration),
-                Priority = CacheItemPriority.High,
-                SlidingExpiration = TimeSpan.FromHours(slidingExpiration),
-                Size = 32
-            };
-            memoryCache.Set(cacheKey, value, cacheExpiryOptions);
-            return Task.CompletedTask;
+            return _memoryCache.Set(cacheKey, item, TimeSpan.FromHours(1));
         }
     }
 }
