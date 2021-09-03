@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using ProjectB.Clients;
-using ProjectB.Clients.Models;
 using ProjectB.Clients.Models.HotelDetails;
 using ProjectB.Clients.Models.Hotels;
 using ProjectB.Infrastructure;
@@ -15,75 +14,47 @@ namespace ProjectB.Services
     {
         private IHotelClients hotelClients;
         private IMapper mapper;
-        private CacheFilter cacheFilter;
         private readonly ICacheFilter<HotelOverview> _hotelOverviewCache;
 
-        public HotelService(IHotelClients hotelClients, IMapper mapper, CacheFilter cacheFilter, ICacheFilter<HotelOverview> hotelOverviewCache)
+        public HotelService(IHotelClients hotelClients, IMapper mapper, ICacheFilter<HotelOverview> hotelOverviewCache)
         {
             this.hotelClients = hotelClients;
             this.mapper = mapper;
-            this.cacheFilter = cacheFilter;
             _hotelOverviewCache = hotelOverviewCache;
         }
 
         public async Task<int> GetDestinationIdAsync(string cityName)
         {
-            string formattedCityName = string.Join(',', cityName.Split(new char[] {' ',','}, StringSplitOptions.RemoveEmptyEntries)).ToUpperInvariant();
+            var destination = await this.hotelClients.GetDestination(cityName);
 
-            var cacheKey = formattedCityName;
-            var cacheValue = cacheFilter.GetCache(cacheKey);
+
             var destinationId = 0;
-
-            if (cacheValue != null)
+            foreach (var item in destination.Suggestions)
             {
-                var cachedDestination = (LocationsByCity)cacheValue;
-
-                foreach (var item in cachedDestination.Suggestions)
+                foreach (var number in item.CityProperties)
                 {
-                    foreach (var number in item.CityProperties)
-                    {
-                        destinationId = int.Parse(number.DestinationId);
-                        break;
-                    }
+                    destinationId = int.Parse(number.DestinationId);
                     break;
                 }
-                return destinationId;
+                break;
             }
-            var destinationToCache = await this.hotelClients.GetDestination(cityName);
-            int cacheAbsoluteExpiration = 6;
-            int cacheSlidingExpiration = 3;
-            await cacheFilter.SetCache(cacheKey, destinationToCache, cacheAbsoluteExpiration, cacheSlidingExpiration);
-            return await GetDestinationIdAsync(cityName);
+
+            return destinationId;
         }
 
         public async Task<ICollection<HotelsViewModel>> GetHotelsByDestinationIdAsync(int id)
         {
-            var cacheKey = id.ToString();
-            var cacheValue = cacheFilter.GetCache(cacheKey);
+            var hotels = await this.hotelClients.GetHotels(id);
             var hotelsViewModel = new List<HotelsViewModel>();
 
-            if (cacheValue != null)
+            foreach (var item in hotels.Data.Body.SearchResults.Results)
             {
-                try
-                {
-                    var cachedHotels = (HotelsLocationByCity)cacheValue;
-                    foreach (var item in cachedHotels.Data.Body.SearchResults.Results)
-                    {
-                        var hotel = new HotelsViewModel();
-                        hotel = this.mapper.Map<HotelByCity, HotelsViewModel>(item);
-                        hotelsViewModel.Add(hotel);
-                    }
-                return hotelsViewModel;
-                }
-                catch (Exception)
-                {
-                    throw new ("ID Not Found!");
-                }
-                
+                var hotel = new HotelsViewModel();
+                hotel = this.mapper.Map<HotelByCity, HotelsViewModel>(item);
+                hotelsViewModel.Add(hotel);
             }
-            var hotelsToCache = await this.hotelClients.GetHotels(id);
-            await cacheFilter.SetCache(cacheKey, hotelsToCache);
-            return await GetHotelsByDestinationIdAsync(id);
+
+            return hotelsViewModel;
         }
 
         public async Task<HotelOverview> GetHotelDetailsById(int id, string checkIn, string checkOut)
