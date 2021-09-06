@@ -9,7 +9,6 @@ using Refit;
 using System;
 using ProjectB.Clients;
 using Telegram.Bot;
-using SimpleInjector;
 using ProjectB.Handlers;
 
 namespace ProjectB
@@ -27,7 +26,6 @@ namespace ProjectB
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers().AddNewtonsoftJson();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ProjectB", Version = "v1" });
