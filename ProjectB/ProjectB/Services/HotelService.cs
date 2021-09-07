@@ -5,6 +5,7 @@ using ProjectB.Clients.Models.Hotels;
 using ProjectB.Infrastructure;
 using ProjectB.ViewModels;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System;
 
@@ -23,7 +24,7 @@ namespace ProjectB.Services
             _hotelOverviewCache = hotelOverviewCache;
         }
 
-        public async Task<int> GetDestinationIdAsync(string cityName)
+        public async Task<ICollection<HotelsViewModel>> GetDestinationIdAsync(string cityName)
         {
             var destination = await this.hotelClients.GetDestination(cityName);
 
@@ -39,7 +40,7 @@ namespace ProjectB.Services
                 break;
             }
 
-            return destinationId;
+            return await GetHotelsByDestinationIdAsync(destinationId);
         }
 
         public async Task<ICollection<HotelsViewModel>> GetHotelsByDestinationIdAsync(int id)
@@ -57,18 +58,25 @@ namespace ProjectB.Services
             return hotelsViewModel;
         }
 
-        public async Task<HotelOverview> GetHotelDetailsById(int id, string checkIn, string checkOut)
+        public async Task<HotelViewModel> GetHotelDetailsById(int id, string checkIn, string checkOut)
         {
             var cacheKey = $"{id}_{checkIn}_{checkOut}";
             var hotelDetails = _hotelOverviewCache.Get(cacheKey);
+            var Hotel = new HotelViewModel();
 
             if (hotelDetails == null)
             {
                 hotelDetails = await hotelClients.GetHotel(id, checkIn, checkOut);
                 _hotelOverviewCache.Set(cacheKey, hotelDetails);
             }
-
-            return hotelDetails;
+            Hotel = this.mapper.Map(hotelDetails.HotelDetails.Hotel, Hotel);
+            var services = hotelDetails.HotelDetails.Hotel.Amenities.Where(x => x.Heading == "In the hotel")
+                    .SelectMany(x => x.HotelService.Where(x => x.Heading == "Services")).ToArray();
+            foreach (var item in services)
+            {
+                Hotel.HotelService = item.ServiceDescription;
+            }
+            return Hotel;
         }
     }
 }
