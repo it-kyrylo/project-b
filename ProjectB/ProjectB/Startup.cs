@@ -10,6 +10,8 @@ using System;
 using ProjectB.Clients;
 using Telegram.Bot;
 using ProjectB.Handlers;
+using ProjectB.Infrastructure;
+
 
 namespace ProjectB
 {
@@ -25,6 +27,9 @@ namespace ProjectB
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMemoryCache();
+            services.AddScoped(typeof(ICacheFilter<>), typeof(CacheFilter<>));
+            services.AddControllers();
 
             services.AddSwaggerGen(c =>
             {
