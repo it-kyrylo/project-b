@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ProjectB.Clients;
+using Microsoft.Azure.Cosmos;
 
 namespace ProjectB
 {
@@ -30,7 +31,6 @@ namespace ProjectB
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -45,6 +45,7 @@ namespace ProjectB
                 .ConfigureHttpClient(c => c.DefaultRequestHeaders.Add("x-rapidapi-key", apikey))
                 .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiurl));
             services.AddAutoMapper(typeof(Startup));
+            services.AddSingleton<ICosmosDbService>(InitializeCosmosClientInstanceAsync(Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,6 +68,25 @@ namespace ProjectB
             {
                 endpoints.MapControllers();
             });
+        }
+        private static async Task<CosmosDbService> InitializeCosmosClientInstanceAsync(IConfigurationSection configurationSection)
+        {
+            var databaseName = configurationSection["DatabaseName"];
+            var containerName = configurationSection["ContainerName"];
+            var account = configurationSection["Account"];
+            var key = configurationSection["Key"];
+            var options = new CosmosClientOptions()
+            {
+                SerializerOptions = new CosmosSerializationOptions()
+                {
+                    PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
+                }
+            };
+            var client = new CosmosClient(account, key, options);
+            var database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
+            await database.Database.CreateContainerIfNotExistsAsync(containerName, "/id");
+            var cosmosDbService = new CosmosDbService(client, databaseName, containerName);
+            return cosmosDbService;
         }
     }
 }
