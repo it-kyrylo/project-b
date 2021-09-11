@@ -70,7 +70,7 @@ namespace ProjectB.Services
                 _hotelOverviewCache.Set(cacheKey, hotelDetails);
             }
             Hotel = this.mapper.Map(hotelDetails.HotelDetails.Hotel, Hotel);
-            var services = hotelDetails.HotelDetails.Hotel.Amenities.Where(x => x.Heading == "In the hotel")
+            var services = hotelDetails.HotelDetails.Hotel.Amenities
                     .SelectMany(x => x.HotelService.Where(x => x.Heading == "Services")).ToArray();
             foreach (var item in services)
             {

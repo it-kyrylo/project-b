@@ -28,7 +28,7 @@ namespace ProjectB
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMemoryCache();
-            services.AddScoped(typeof(ICacheFilter<>), typeof(CacheFilter<>));
+            services.AddSingleton(typeof(ICacheFilter<>), typeof(CacheFilter<>));
             services.AddControllers();
 
             services.AddSwaggerGen(c =>
@@ -49,6 +49,7 @@ namespace ProjectB
 
             services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(telegramTokenApi));
             services.AddSingleton<ITelegramUpdateHandler, TelegramUpdateHandler>();
+            services.AddSingleton<IMessageBuilder, MessageBuilder>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
