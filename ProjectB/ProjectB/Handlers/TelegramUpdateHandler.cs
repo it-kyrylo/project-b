@@ -1,4 +1,6 @@
-﻿using ProjectB.Services;
+﻿using ProjectB.Factories;
+using ProjectB.Models.States.Enums;
+using ProjectB.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +15,13 @@ namespace ProjectB.Handlers
 {
     public class TelegramUpdateHandler : ITelegramUpdateHandler
     {
+        // private readonly IStateProviderService _stateProvider;
+        private readonly IStateFactory _stateFactory;
+        public TelegramUpdateHandler(IStateFactory stateFactory)
+        {
+            //_stateProvider = stateProvider;
+            _stateFactory = stateFactory;
+        }
 
         public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
@@ -22,10 +31,26 @@ namespace ProjectB.Handlers
             }
 
             var chatId = update.Message != null ? update.Message.Chat.Id : update.CallbackQuery.Message.Chat.Id;
-            var me = await botClient.GetMeAsync();
-            if (update.Type == Telegram.Bot.Types.Enums.UpdateType.Message)
+            var state = _stateFactory.GetState(ContextState.MainState);
+
+            var handler = update.Type switch
             {
-                await botClient.SendTextMessageAsync(chatId, "running");
+                UpdateType.Message => state.BotOnMessageReceived(botClient, update.Message).Result,
+                UpdateType.CallbackQuery => state.BotOnCallBackQueryReceived(botClient, update.CallbackQuery).Result,
+                _ => UnknownUpdateHandlerAsync(botClient, update).Result
+            };
+
+            try
+            {
+                var nextState = handler;
+               // var chat = await _stateProvider.GetChatStateAsync(chatId);
+               // chat.Current_State = nextState;
+              //  await _stateProvider.UpdateChatStateAsync(chat);
+                await _stateFactory.GetState(nextState).BotSendMessage(botClient, chatId);
+            }
+            catch (Exception exception)
+            {
+                await HandleErrorAsync(botClient, exception, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -40,6 +65,13 @@ namespace ProjectB.Handlers
             Console.WriteLine(ErrorMessage);
 
             return Task.CompletedTask;
+        }
+
+        private Task<ContextState> UnknownUpdateHandlerAsync(ITelegramBotClient botClient, Update update)
+        {
+            botClient.SendTextMessageAsync(update.Message.Chat.Id, "Something went wrong! Please try again");
+
+            return Task.Run(() => ContextState.MainState);
         }
     }
 }

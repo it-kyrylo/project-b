@@ -11,7 +11,8 @@ using ProjectB.Clients;
 using Telegram.Bot;
 using ProjectB.Handlers;
 using ProjectB.Infrastructure;
-
+using ProjectB.Factories;
+using System.Threading.Tasks;
 
 namespace ProjectB
 {
@@ -49,6 +50,24 @@ namespace ProjectB
 
             services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(telegramTokenApi));
             services.AddSingleton<ITelegramUpdateHandler, TelegramUpdateHandler>();
+
+            services.AddTransient<IStateFactory, StateFactory>();
+
+           // services.AddSingleton<IStateProviderService>(InitializeCosmosClientInstanceAsync(Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult());
+        }
+
+        private static async Task<StateProviderService> InitializeCosmosClientInstanceAsync(IConfigurationSection configurationSection)
+        {
+            var databaseName = configurationSection["DatabaseName"];
+            var containerName = configurationSection["ContainerName"];
+            var account = configurationSection["Account"];
+            var key = configurationSection["Key"];
+
+            var client = new Microsoft.Azure.Cosmos.CosmosClient(account, key);
+            var database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
+            await database.Database.CreateContainerIfNotExistsAsync(containerName, "/chat_id");
+            var cosmosDbService = new StateProviderService(client, databaseName, containerName);
+            return cosmosDbService;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
