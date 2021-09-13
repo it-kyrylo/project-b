@@ -17,6 +17,7 @@ namespace ProjectB.Factories
         {
             var result = state switch
             {
+                State.HelpState => new HelpState(),
                 State.CheckOutSelectState => new CheckOutSelectState(),
                 State.CheckOutState => new CheckOutState(),
                 State.CheckInSelectState => new CheckInSelectState(),

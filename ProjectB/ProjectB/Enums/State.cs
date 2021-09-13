@@ -10,6 +10,7 @@
         CheckInSelectState,
         CheckOutState,
         CheckOutSelectState,
-        HotelInfoState
+        HotelInfoState,
+        HelpState
     }
 }

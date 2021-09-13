@@ -1,5 +1,4 @@
-﻿using ProjectB.Clients.Models.HotelDetails;
-using ProjectB.ViewModels;
+﻿using ProjectB.ViewModels;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
