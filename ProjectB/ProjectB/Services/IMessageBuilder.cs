@@ -5,10 +5,9 @@ namespace ProjectB.Services
 {
     public interface IMessageBuilder
     {
+        Message MainState();
 
-        Message MainState(ChatId chatId);
-
-        Task<Message> HotelsToButtons(ChatId chatId, string cityName);
+        Task<Message> HotelsToButtons(string cityName);
 
         Message CheckInDate();
 

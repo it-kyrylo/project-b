@@ -11,7 +11,7 @@ using ProjectB.Clients;
 using Telegram.Bot;
 using ProjectB.Handlers;
 using ProjectB.Infrastructure;
-
+using ProjectB.Factories;
 
 namespace ProjectB
 {
@@ -49,7 +49,7 @@ namespace ProjectB
 
             services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(telegramTokenApi));
             services.AddSingleton<ITelegramUpdateHandler, TelegramUpdateHandler>();
-            services.AddSingleton<IMessageBuilder, MessageBuilder>();
+            services.AddSingleton<IStateFactory, StateFactory>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

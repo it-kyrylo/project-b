@@ -23,7 +23,7 @@ namespace ProjectB.Services
             _telegramBotClient = telegramBotClient;
         }
 
-        public Message MainState(ChatId chatId)
+        public Message MainState()
         {
             var inlineKeyboard = new InlineKeyboardMarkup(new[]
                  {
@@ -42,7 +42,7 @@ namespace ProjectB.Services
             return message;
         }
 
-        public async Task<Message> HotelsToButtons(ChatId chatId, string cityName)
+        public async Task<Message> HotelsToButtons(string cityName)
         {
             var hotels = await _hotelService.GetDestinationIdAsync(cityName);
             var buttons = new List<InlineKeyboardButton[]>();
