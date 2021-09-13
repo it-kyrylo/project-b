@@ -45,7 +45,12 @@ namespace ProjectB
                 .ConfigureHttpClient(c => c.DefaultRequestHeaders.Add("x-rapidapi-key", apikey))
                 .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiurl));
             services.AddAutoMapper(typeof(Startup));
-            services.AddSingleton<ICosmosDbService>(InitializeCosmosClientInstanceAsync(Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult());
+
+            //services.AddSingleton<ICosmosDbUserHistoryService>(InitializeCosmosClientInstanceAsync(Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult());
+            var database = InitializeCosmosDatabaseAsync(Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult();
+            services.AddSingleton<ICosmosDbHotelInformationService>(InitializeHotelInformationContainerAsync(Configuration.GetSection("CosmosDb"), database).GetAwaiter().GetResult());
+            services.AddSingleton<ICosmosDbUserHistoryService>(InitializeUserHistoryContainerAsync(Configuration.GetSection("CosmosDb"), database).GetAwaiter().GetResult());
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -69,10 +74,9 @@ namespace ProjectB
                 endpoints.MapControllers();
             });
         }
-        private static async Task<CosmosDbService> InitializeCosmosClientInstanceAsync(IConfigurationSection configurationSection)
+        private static async Task<DatabaseResponse> InitializeCosmosDatabaseAsync(IConfigurationSection configurationSection)
         {
             var databaseName = configurationSection["DatabaseName"];
-            var containerName = configurationSection["ContainerName"];
             var account = configurationSection["Account"];
             var key = configurationSection["Key"];
             var options = new CosmosClientOptions()
@@ -84,9 +88,23 @@ namespace ProjectB
             };
             var client = new CosmosClient(account, key, options);
             var database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
-            await database.Database.CreateContainerIfNotExistsAsync(containerName, "/id");
-            var cosmosDbService = new CosmosDbService(client, databaseName, containerName);
-            return cosmosDbService;
+            return database;
+        }
+        private static async Task<CosmosDbHotelInformationService> InitializeHotelInformationContainerAsync(IConfigurationSection configurationSection, DatabaseResponse database)
+        {
+            var databaseName = configurationSection["DatabaseName"];
+            var hotelInformationContainerName = configurationSection["HotelInformationContainerName"];
+            await database.Database.CreateContainerIfNotExistsAsync(hotelInformationContainerName, "/id");
+            var cosmosDbHotelInformationService = new CosmosDbHotelInformationService(database.Database.Client, databaseName, hotelInformationContainerName);
+            return cosmosDbHotelInformationService;
+        }
+        private static async Task<CosmosDbUserHistoryService> InitializeUserHistoryContainerAsync(IConfigurationSection configurationSection, DatabaseResponse database)
+        {
+            var databaseName = configurationSection["DatabaseName"];
+            var userHistoryContainerName = configurationSection["UserHistoryContainerName"];
+            await database.Database.CreateContainerIfNotExistsAsync(userHistoryContainerName, "/id");
+            var cosmosDbUserHistoryService = new CosmosDbUserHistoryService(database.Database.Client, databaseName, userHistoryContainerName);
+            return cosmosDbUserHistoryService;
         }
     }
 }
