@@ -46,7 +46,7 @@ namespace ProjectB
                 .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiurl));
             services.AddAutoMapper(typeof(Startup));
 
-            //services.AddSingleton<ICosmosDbUserHistoryService>(InitializeCosmosClientInstanceAsync(Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult());
+            
             var database = InitializeCosmosDatabaseAsync(Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult();
             services.AddSingleton<ICosmosDbHotelInformationService>(InitializeHotelInformationContainerAsync(Configuration.GetSection("CosmosDb"), database).GetAwaiter().GetResult());
             services.AddSingleton<ICosmosDbUserHistoryService>(InitializeUserHistoryContainerAsync(Configuration.GetSection("CosmosDb"), database).GetAwaiter().GetResult());
