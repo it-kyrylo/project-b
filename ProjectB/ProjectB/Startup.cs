@@ -1,21 +1,19 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using ProjectB.Services;
 using Refit;
-using AutoMapper;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ProjectB.Clients;
 using Microsoft.Azure.Cosmos;
+using Telegram.Bot;
+using ProjectB.Handlers;
+using ProjectB.Infrastructure;
+
+
 
 namespace ProjectB
 {
@@ -31,7 +29,13 @@ namespace ProjectB
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+
+            services.AddMemoryCache();
+            services.AddSingleton(typeof(ICacheFilter<>), typeof(CacheFilter<>));
+
             services.AddControllers();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ProjectB", Version = "v1" });
@@ -40,6 +44,8 @@ namespace ProjectB
             var apihost = Configuration["ApiConfiguration:ApiHost"];
             var apikey = Configuration["ApiConfiguration:ApiToken"];
             var apiurl = Configuration["ApiConfiguration:ApiUrl"];
+            var telegramTokenApi = Configuration["TelegramBotConfiguration:Token"];
+
             services.AddRefitClient<IHotelClients>()
                 .ConfigureHttpClient(c => c.DefaultRequestHeaders.Add("x-rapidapi-host",apihost))
                 .ConfigureHttpClient(c => c.DefaultRequestHeaders.Add("x-rapidapi-key", apikey))
@@ -50,7 +56,10 @@ namespace ProjectB
             var database = InitializeCosmosDatabaseAsync(Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult();
             services.AddSingleton<ICosmosDbHotelInformationService>(InitializeHotelInformationContainerAsync(Configuration.GetSection("CosmosDb"), database).GetAwaiter().GetResult());
             services.AddSingleton<ICosmosDbUserHistoryService>(InitializeUserHistoryContainerAsync(Configuration.GetSection("CosmosDb"), database).GetAwaiter().GetResult());
-            
+           
+            services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(telegramTokenApi));
+            services.AddSingleton<ITelegramUpdateHandler, TelegramUpdateHandler>();
+            services.AddSingleton<IMessageBuilder, MessageBuilder>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
