@@ -8,10 +8,10 @@ namespace ProjectB.States
 {
     public class HotelSelectState : IState
     {
-        private int hotelid;
+        private int hotelId;
         public Task<State> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
-            this.hotelid = int.Parse(callbackQuery.Data.ToString());
+            this.hotelId = int.Parse(callbackQuery.Data.ToString());
             return Task.FromResult(State.HotelSelectState);
         }
 
