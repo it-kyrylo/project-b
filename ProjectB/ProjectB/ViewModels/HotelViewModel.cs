@@ -14,6 +14,8 @@
 
         public decimal Price { get; set; }
 
+        public string BookingLink = "www.hotels.com/hoid/?q-check-in=checkindate&q-check-out=checkoutdate";
+
         public string[] HotelService { get; set; }
     }
 }
