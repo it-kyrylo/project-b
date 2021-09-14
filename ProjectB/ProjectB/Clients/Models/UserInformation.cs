@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace ProjectB.Clients.Models
 {
-    public class CosmosDbHotelInformation
+    public class UserInformation
     {
         [JsonPropertyName("id")]
         public string Id { get; set; }
+        [JsonPropertyName("searchHistory")]
+        public List<string> SearchHistory { get; set; }
         [JsonPropertyName("hotelId")]
         public string HotelId { get; set; }
         [JsonPropertyName("checkInDate")]

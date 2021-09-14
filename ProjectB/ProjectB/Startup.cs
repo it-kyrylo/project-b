@@ -13,6 +13,8 @@ using Telegram.Bot;
 using ProjectB.Handlers;
 using ProjectB.Infrastructure;
 using System.Threading.Tasks;
+using ProjectB.Repositories;
+using ProjectB.Clients.Models;
 
 namespace ProjectB
 {
@@ -51,11 +53,8 @@ namespace ProjectB
                 .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiurl));
             services.AddAutoMapper(typeof(Startup));
 
-            
-            var database = InitializeCosmosDatabaseAsync(Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult();
-            services.AddSingleton<ICosmosDbHotelInformationService>(InitializeHotelInformationContainerAsync(Configuration.GetSection("CosmosDb"), database).GetAwaiter().GetResult());
-            services.AddSingleton<ICosmosDbUserHistoryService>(InitializeUserHistoryContainerAsync(Configuration.GetSection("CosmosDb"), database).GetAwaiter().GetResult());
-           
+            services.AddSingleton<ICosmosDbRepository<UserInformation>>(InitializeCosmosDatabaseAsync(Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult());
+            services.AddSingleton(typeof(ICosmosDbService<>), typeof(CosmosDbService<>));
             services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(telegramTokenApi));
             services.AddSingleton<ITelegramUpdateHandler, TelegramUpdateHandler>();
             services.AddSingleton<IMessageBuilder, MessageBuilder>();
@@ -82,9 +81,10 @@ namespace ProjectB
                 endpoints.MapControllers();
             });
         }
-        private static async Task<DatabaseResponse> InitializeCosmosDatabaseAsync(IConfigurationSection configurationSection)
+        private static async Task<CosmosDbRepository<UserInformation>> InitializeCosmosDatabaseAsync(IConfigurationSection configurationSection)
         {
             var databaseName = configurationSection["DatabaseName"];
+            var containerName = configurationSection["ContainerName"];
             var account = configurationSection["Account"];
             var key = configurationSection["Key"];
             var options = new CosmosClientOptions()
@@ -96,23 +96,9 @@ namespace ProjectB
             };
             var client = new CosmosClient(account, key, options);
             var database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
-            return database;
-        }
-        private static async Task<CosmosDbHotelInformationService> InitializeHotelInformationContainerAsync(IConfigurationSection configurationSection, DatabaseResponse database)
-        {
-            var databaseName = configurationSection["DatabaseName"];
-            var hotelInformationContainerName = configurationSection["HotelInformationContainerName"];
-            await database.Database.CreateContainerIfNotExistsAsync(hotelInformationContainerName, "/id");
-            var cosmosDbHotelInformationService = new CosmosDbHotelInformationService(database.Database.Client, databaseName, hotelInformationContainerName);
-            return cosmosDbHotelInformationService;
-        }
-        private static async Task<CosmosDbUserHistoryService> InitializeUserHistoryContainerAsync(IConfigurationSection configurationSection, DatabaseResponse database)
-        {
-            var databaseName = configurationSection["DatabaseName"];
-            var userHistoryContainerName = configurationSection["UserHistoryContainerName"];
-            await database.Database.CreateContainerIfNotExistsAsync(userHistoryContainerName, "/id");
-            var cosmosDbUserHistoryService = new CosmosDbUserHistoryService(database.Database.Client, databaseName, userHistoryContainerName);
-            return cosmosDbUserHistoryService;
-        }
+            await database.Database.CreateContainerIfNotExistsAsync(containerName, "/id");
+            var cosmosDdRepository = new CosmosDbRepository<UserInformation>(client, configurationSection);
+            return cosmosDdRepository; 
+        }   
     }
 }
