@@ -62,7 +62,6 @@ namespace ProjectB.Handlers
             else if(currentState != State.MainState)
             {
                 HandleCommunication(botClient, update, state);
-                return;
             }
             else if (currentState == State.HelpState)
             {
@@ -82,9 +81,10 @@ namespace ProjectB.Handlers
                 {
                     currentState = states[_count];
                 }
-                else
+                else if(_count + 1 == states.Length)
                 {
                     _count = 0;
+                    currentState = states[_count];
                 }
             }
             catch (Exception exception)
