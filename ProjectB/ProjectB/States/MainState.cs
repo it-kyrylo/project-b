@@ -11,8 +11,11 @@ namespace ProjectB.States
 {
     public class MainState : IState
     {
-        public Task<State> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
-        => Task.FromResult(State.MainState);
+        public async Task<State> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
+        {
+           await BotSendMessage(botClient, callbackQuery.Message.Chat.Id);
+            return State.MainState;
+        }
 
         public async Task<State> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {

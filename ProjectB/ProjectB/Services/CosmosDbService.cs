@@ -41,6 +41,10 @@ namespace ProjectB.Services
 
             if (oldSearchesToEdit != null)
             {
+                if (oldSearchesToEdit.SearchHistory == null)
+                {
+                    oldSearchesToEdit.SearchHistory = new List<string>();
+                }
                 oldSearchesToEdit.SearchHistory.Add(searchToAdd);
                 await UpdateAsync(searchId, oldSearchesToEdit);
                 return;
@@ -94,7 +98,7 @@ namespace ProjectB.Services
         }
         public async Task<IEnumerable<string>> GetHistoryAsync(string chatId)
         {
-            if (await CheckIfExists(chatId) == true)
+            if (await CheckIfExists(chatId))
             {
                 var chat = await GetAsync(chatId);
                 List<string> searchHistory = chat.SearchHistory;
@@ -104,7 +108,7 @@ namespace ProjectB.Services
         }
         public async Task<string> GetHotelIdByChatIdAsync(string chatId)
         {
-            if (await CheckIfExists(chatId) == true)
+            if (await CheckIfExists(chatId))
             {
                 var chatInfo = await GetAsync(chatId);
                 var hotelId = chatInfo.HotelId;
@@ -114,7 +118,7 @@ namespace ProjectB.Services
         }
         public async Task<string> GetCheckInDateByChatIdAsync(string chatId)
         {
-            if (await CheckIfExists(chatId) == true)
+            if (await CheckIfExists(chatId))
             {
                 var chatInfo = await GetAsync(chatId);
                 var checkInDate = chatInfo.CheckInDate;
@@ -124,7 +128,7 @@ namespace ProjectB.Services
         }
         public async Task<string> GetCheckOutDateByChatIdAsync(string chatId)
         {
-            if (await CheckIfExists(chatId) == true)
+            if (await CheckIfExists(chatId))
             {
                 var chatInfo = await GetAsync(chatId);
                 var checkOutDate = chatInfo.CheckOutDate;
@@ -138,7 +142,7 @@ namespace ProjectB.Services
             var userToCheck = await GetAsync(chatId);
             if (userToCheck == null)
             {
-                throw new Exception("User not found!");
+                return false;
             }
             return true;
         }

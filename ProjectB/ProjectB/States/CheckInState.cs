@@ -1,4 +1,6 @@
-﻿using ProjectB.Enums;
+﻿using ProjectB.Clients.Models;
+using ProjectB.Enums;
+using ProjectB.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +13,7 @@ namespace ProjectB.States
 {
     public class CheckInState : IState
     {
+
         public async Task<State> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
             await BotSendMessage(botClient, callbackQuery.Message.Chat.Id);

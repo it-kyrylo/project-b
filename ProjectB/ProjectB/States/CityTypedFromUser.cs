@@ -1,4 +1,5 @@
-﻿using ProjectB.Enums;
+﻿using ProjectB.Clients.Models;
+using ProjectB.Enums;
 using ProjectB.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -11,17 +12,26 @@ namespace ProjectB.States
     public class CityTypedFromUser : IState
     {
         private IHotelService _hotelService;
+        private ICosmosDbService<UserInformation> _cosmosDbService;
 
-        public CityTypedFromUser(IHotelService hotelService)
+        public CityTypedFromUser(IHotelService hotelService, ICosmosDbService<UserInformation> cosmosDbService)
         {
             _hotelService = hotelService;
+            _cosmosDbService = cosmosDbService;
         }
 
-        public Task<State> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
-        => Task.FromResult(State.CityTypedFromUserState);
+        public async Task<State> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
+        {
+            await BotSendMessage(botClient, callbackQuery.Message.Chat.Id, callbackQuery.Data.ToString());
+            return State.CityTypedFromUserState;
+        }
 
         public async Task<State> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
+            var userInformation = new UserInformation();
+            userInformation.Id = message.Chat.Id.ToString();
+            var city = char.ToUpper(message.Text.ToString()[0]) + message.Text.ToString().Substring(1);
+            await _cosmosDbService.AddToHistoryAsync(userInformation, city);
             await BotSendMessage(botClient, message.Chat.Id, message.Text.ToString());
             return State.CityTypedFromUserState;
         }

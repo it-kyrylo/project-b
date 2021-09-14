@@ -1,4 +1,6 @@
-﻿using ProjectB.Enums;
+﻿using ProjectB.Clients.Models;
+using ProjectB.Enums;
+using ProjectB.Services;
 using System;
 using System.Threading.Tasks;
 using Telegram.Bot;
@@ -9,10 +11,19 @@ namespace ProjectB.States
 {
     public class HotelSelectState : IState
     {
-        private int hotelId;
+        private ICosmosDbService<UserInformation> _cosmosDbService;
+
+        public HotelSelectState(ICosmosDbService<UserInformation> cosmosDbService)
+        {
+            _cosmosDbService = cosmosDbService;
+        }
+
         public async Task<State> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
-            this.hotelId = int.Parse(callbackQuery.Data.ToString());
+            var userInforamation = new UserInformation();
+            userInforamation.Id = callbackQuery.Message.Chat.Id.ToString();
+            userInforamation.HotelId = callbackQuery.Data.ToString();
+            await _cosmosDbService.AddHotelIdAsync(userInforamation);
             await BotSendMessage(botClient, callbackQuery.Message.Chat.Id);
             return State.HotelSelectState;
         }

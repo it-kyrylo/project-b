@@ -1,4 +1,5 @@
-﻿using ProjectB.Enums;
+﻿using ProjectB.Clients.Models;
+using ProjectB.Enums;
 using ProjectB.Services;
 using System;
 using System.Collections.Generic;
@@ -13,26 +14,32 @@ namespace ProjectB.States
     public class HotelInfoState : IState
     {
         private IHotelService _hotelService;
+        private ICosmosDbService<UserInformation> _cosmosDbService;
 
-        public HotelInfoState(IHotelService hotelService)
+        public HotelInfoState(IHotelService hotelService, ICosmosDbService<UserInformation> cosmosDbService)
         {
             _hotelService = hotelService;
+            _cosmosDbService = cosmosDbService;
         }
 
-        public Task<State> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
-        => Task.FromResult(State.HotelInfoState);
+        public async Task<State> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
+        {
+            await BotSendMessage(botClient, callbackQuery.Message.Chat.Id);
+            return State.HotelInfoState;
+        }
 
         public Task<State> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         => Task.FromResult(State.HotelInfoState);
 
-        public Task BotSendMessage(ITelegramBotClient botClient, long chatId)
-        => Task.FromResult(State.HotelInfoState);
-
-        public async Task BotSendMessage(ITelegramBotClient botClient, long chatId, int hotelId, string chechIn, string checkOut)
+        public async Task BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
-            var hotel = await _hotelService.GetHotelDetailsById(hotelId, chechIn, checkOut);
+            var hotelId = await _cosmosDbService.GetHotelIdByChatIdAsync(chatId.ToString());
+            var checkIn = await _cosmosDbService.GetCheckInDateByChatIdAsync(chatId.ToString());
+            var checkOut = await _cosmosDbService.GetCheckOutDateByChatIdAsync(chatId.ToString());
+            
+            var hotel = await _hotelService.GetHotelDetailsById(int.Parse(hotelId), checkIn, checkOut);
             hotel.BookingLink = hotel.BookingLink.Replace("id", hotelId.ToString());
-            hotel.BookingLink = hotel.BookingLink.Replace("checkindate", chechIn);
+            hotel.BookingLink = hotel.BookingLink.Replace("checkindate", checkIn);
             hotel.BookingLink = hotel.BookingLink.Replace("checkoutdate", checkOut);
             var inlineKeyboard = new InlineKeyboardMarkup(new[]
             {
