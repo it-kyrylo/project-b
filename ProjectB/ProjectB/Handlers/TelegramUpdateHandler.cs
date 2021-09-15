@@ -1,4 +1,6 @@
-﻿using ProjectB.Services;
+﻿using ProjectB.Enums;
+using ProjectB.Factories;
+using ProjectB.Services;
 using ProjectB.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -14,16 +16,13 @@ namespace ProjectB.Handlers
 {
     public class TelegramUpdateHandler : ITelegramUpdateHandler
     {
-        private IMessageBuilder _messageBuilder;
-        private Dictionary<long, string> states;
-        private Dictionary<long, SaveData> Date;
-        private int cout = 0;
+        private IStateFactory _statefactory;
+        private int _count;
 
-        public TelegramUpdateHandler(IMessageBuilder botCommunicationService)
+        public TelegramUpdateHandler(IStateFactory statefactory)
         {
-            this._messageBuilder = botCommunicationService;
-            this.states = new Dictionary<long, string>();
-            this.Date = new Dictionary<long, SaveData>();
+            _statefactory = statefactory;
+            _count = 0;
         }
 
         public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
@@ -34,63 +33,74 @@ namespace ProjectB.Handlers
             }
 
             var chatId = update.Message != null ? update.Message.Chat.Id : update.CallbackQuery.Message.Chat.Id;
-            var me = await botClient.GetMeAsync();
+            var states = Enum.GetValues<State>();
+            var currentState = states[_count];
+            var state = _statefactory.GetState(currentState);
             if (update.Type == Telegram.Bot.Types.Enums.UpdateType.Message)
             {
                 if (update.Message.Text.ToString().ToLower() == "/start")
                 {
-                    var mainstate = _messageBuilder.MainState(chatId);
-                    await botClient.SendTextMessageAsync(chatId, mainstate.Text, replyMarkup: mainstate.ReplyMarkup);
+                    HandleCommunication(botClient, update, state);
                 }
-                else if (states.ContainsKey(chatId))
+                else if (currentState == State.CityTypedFromUserState)
                 {
-                    var hotels = await this._messageBuilder.HotelsToButtons(chatId, update.Message.Text.ToString());
-                    await botClient.SendTextMessageAsync(chatId, hotels.Text, replyMarkup: hotels.ReplyMarkup);
+                    HandleCommunication(botClient, update, state);
                 }
-
             }
-            else if (update.Type == Telegram.Bot.Types.Enums.UpdateType.CallbackQuery)
+            else if (update.CallbackQuery.Data.ToString() == "Help")
             {
-                var state = string.Empty;
-                states.TryGetValue(chatId, out state);
-                if (state == null)
+                state = _statefactory.GetState(State.HelpState);
+                HandleCommunication(botClient, update, state);
+                _count = 0;
+            }
+            else if (update.CallbackQuery.Data.ToString() == "Back")
+            {
+                state = _statefactory.GetState(State.MainState);
+                HandleCommunication(botClient, update, state);
+                _count = 0;
+            }
+            else if(currentState != State.MainState)
+            {
+                HandleCommunication(botClient, update, state);
+            }
+            else if (currentState == State.HelpState)
+            {
+                HandleCommunication(botClient, update, state);
+                return;
+            }
+            else
+            {
+                currentState = State.MainState;
+                return;
+            }
+
+            try
+            {
+                _count++;
+                if (_count < states.Length)
                 {
-                    this.states.Add(chatId, update.CallbackQuery.Data.ToString());
-                    await botClient.SendTextMessageAsync(chatId, update.CallbackQuery.Data.ToString());
+                    currentState = states[_count];
                 }
-                else
+                else if(_count + 1 == states.Length)
                 {
-                    if (!this.Date.ContainsKey(chatId))
-                    {
-                        this.Date.Add(chatId, new SaveData());
-                    }
-                    else if (this.Date[chatId].HotelId != 0 && this.Date[chatId].CheckIn != null && this.Date[chatId].CheckOut == null)
-                    {
-                        this.Date[chatId].CheckOut = update.CallbackQuery.Data.ToString();
-                        cout = 0;
-                        var hotel = await _messageBuilder.HotelInfo
-                            (this.Date[chatId].HotelId, this.Date[chatId].CheckIn, this.Date[chatId].CheckOut);
-                        await botClient.SendTextMessageAsync(chatId, hotel.Text, replyMarkup: hotel.ReplyMarkup);
-                        this.Date = new Dictionary<long, SaveData>();
-                        this.states = new Dictionary<long, string>();
-                        return;
-                    }
-                    if (cout % 2 == 0)
-                    {
-                        var checkin = this._messageBuilder.CheckInDate();
-                        await botClient.SendTextMessageAsync(chatId, checkin.Text, replyMarkup: checkin.ReplyMarkup);
-                        this.Date[chatId].HotelId = int.Parse(update.CallbackQuery.Data.ToString());
-                        cout++;
-                    }
-                    else if (cout % 2 != 0)
-                    {
-                        this.Date[chatId].CheckIn = update.CallbackQuery.Data.ToString();
-                        var chekout = this._messageBuilder.CheckOutDate();
-                        await botClient.SendTextMessageAsync(chatId, chekout.Text, replyMarkup: chekout.ReplyMarkup);
-                        cout++;
-                    }
+                    _count = 0;
+                    currentState = states[_count];
                 }
             }
+            catch (Exception exception)
+            {
+                await HandleErrorAsync(botClient, exception, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        private void HandleCommunication(ITelegramBotClient botClient, Update update, States.IState state)
+        {
+            var handler = update.Type switch
+            {
+                UpdateType.Message => state.BotOnMessageReceived(botClient, update.Message).Result,
+                UpdateType.CallbackQuery => state.BotOnCallBackQueryReceived(botClient, update.CallbackQuery).Result,
+                _ => UnknownUpdateHandlerAsync(botClient, update).Result
+            };
         }
 
         public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
@@ -105,5 +115,12 @@ namespace ProjectB.Handlers
 
             return Task.CompletedTask;
         }
-    }
+
+        private Task<State> UnknownUpdateHandlerAsync(ITelegramBotClient botClient, Update update)
+        {
+            botClient.SendTextMessageAsync(update.Message.Chat.Id, "Something went wrong! Please try again");
+
+            return Task.Run(() => State.MainState);
+        }
+}
 }

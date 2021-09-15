@@ -12,6 +12,7 @@ using Microsoft.Azure.Cosmos;
 using Telegram.Bot;
 using ProjectB.Handlers;
 using ProjectB.Infrastructure;
+using ProjectB.Factories;
 using System.Threading.Tasks;
 using ProjectB.Repositories;
 using ProjectB.Clients.Models;
@@ -57,7 +58,7 @@ namespace ProjectB
             services.AddSingleton(typeof(ICosmosDbService<>), typeof(CosmosDbService<>));
             services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(telegramTokenApi));
             services.AddSingleton<ITelegramUpdateHandler, TelegramUpdateHandler>();
-            services.AddSingleton<IMessageBuilder, MessageBuilder>();
+            services.AddSingleton<IStateFactory, StateFactory>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
