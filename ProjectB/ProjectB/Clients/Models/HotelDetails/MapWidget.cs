@@ -1,7 +1,6 @@
-﻿namespace ProjectB.Clients.Models.HotelDetails
+﻿namespace ProjectB.Clients.Models.HotelDetails;
+
+public class MapWidget
 {
-    public class MapWidget
-    {
-        public string StaticMapUrl { get; set; }
-    }
+    public string StaticMapUrl { get; set; }
 }

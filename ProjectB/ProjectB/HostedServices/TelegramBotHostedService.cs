@@ -1,10 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
-using ProjectB.Handlers;
-using Telegram.Bot;
-using Telegram.Bot.Extensions.Polling;
+﻿using Telegram.Bot.Extensions.Polling;
 
 namespace ProjectB.HostedServices
 {

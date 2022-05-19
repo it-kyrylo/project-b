@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace ProjectB.Clients.Models.Hotels
+﻿namespace ProjectB.Clients.Models.Hotels
 {
     public class DataForHotels
     {

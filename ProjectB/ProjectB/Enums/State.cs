@@ -1,16 +1,15 @@
-﻿namespace ProjectB.Enums
+﻿namespace ProjectB.Enums;
+
+public enum State
 {
-    public enum State
-    {
-        MainState,
-        CitySelectState,
-        CityTypedFromUserState,
-        HotelSelectState,
-        CheckInState,
-        CheckInSelectState,
-        CheckOutState,
-        CheckOutSelectState,
-        HotelInfoState,
-        HelpState
-    }
+    MainState,
+    CitySelectState,
+    CityTypedFromUserState,
+    HotelSelectState,
+    CheckInState,
+    CheckInSelectState,
+    CheckOutState,
+    CheckOutSelectState,
+    HotelInfoState,
+    HelpState
 }

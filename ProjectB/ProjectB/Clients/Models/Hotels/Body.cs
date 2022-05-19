@@ -1,30 +1,27 @@
-﻿using System.Text.Json.Serialization;
+﻿namespace ProjectB.Clients.Models.Hotels;
 
-namespace ProjectB.Clients.Models.Hotels
+public class Body
 {
-    public class Body
-    {
-        [JsonIgnore]
-        public string Header { get; set; }
+    [JsonIgnore]
+    public string Header { get; set; }
 
-        [JsonIgnore]
-        public string Query { get; set; }
+    [JsonIgnore]
+    public string Query { get; set; }
 
-        public SearchResult SearchResults { get; set; }
+    public SearchResult SearchResults { get; set; }
 
-        [JsonIgnore]
-        public string SortResults { get; set; }
+    [JsonIgnore]
+    public string SortResults { get; set; }
 
-        [JsonIgnore]
-        public string Filters { get; set; }
+    [JsonIgnore]
+    public string Filters { get; set; }
 
-        [JsonIgnore]
-        public string PointOfSale { get; set; }
+    [JsonIgnore]
+    public string PointOfSale { get; set; }
 
-        [JsonIgnore]
-        public string Miscellaneous { get; set; }
+    [JsonIgnore]
+    public string Miscellaneous { get; set; }
 
-        [JsonIgnore]
-        public string PageInfo { get; set; }
-    }
+    [JsonIgnore]
+    public string PageInfo { get; set; }
 }

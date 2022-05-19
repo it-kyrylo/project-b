@@ -1,21 +1,5 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
-using ProjectB.Services;
-using Refit;
-using System;
-using ProjectB.Clients;
 using Microsoft.Azure.Cosmos;
-using Telegram.Bot;
-using ProjectB.Handlers;
-using ProjectB.Infrastructure;
-using ProjectB.Factories;
-using System.Threading.Tasks;
-using ProjectB.Repositories;
-using ProjectB.Clients.Models;
+using Microsoft.OpenApi.Models;
 
 namespace ProjectB
 {
@@ -42,7 +26,7 @@ namespace ProjectB
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ProjectB", Version = "v1" });
             });
-            services.AddTransient<IHotelService, HotelService>();
+            services.AddSingleton<IHotelService, HotelService>();
             var apihost = Configuration["ApiConfiguration:ApiHost"];
             var apikey = Configuration["ApiConfiguration:ApiToken"];
             var apiurl = Configuration["ApiConfiguration:ApiUrl"];

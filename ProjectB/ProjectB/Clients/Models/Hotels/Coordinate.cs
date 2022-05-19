@@ -1,9 +1,8 @@
-﻿namespace ProjectB.Clients.Models.Hotels
-{
-    public class Coordinate
-    {
-        public decimal Lat { get; set; }
+﻿namespace ProjectB.Clients.Models.Hotels;
 
-        public decimal Lon { get; set; }
-    }
+public class Coordinate
+{
+    public decimal Lat { get; set; }
+
+    public decimal Lon { get; set; }
 }

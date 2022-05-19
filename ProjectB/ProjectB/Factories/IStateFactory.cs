@@ -1,10 +1,6 @@
-﻿using ProjectB.Enums;
-using ProjectB.States;
+﻿namespace ProjectB.Factories;
 
-namespace ProjectB.Factories
+public interface IStateFactory
 {
-    public interface IStateFactory
-    {
-        IState GetState(State state);
-    }
+    IState GetState(State state);
 }

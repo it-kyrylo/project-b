@@ -1,19 +1,18 @@
-﻿namespace ProjectB.Clients.Models.HotelDetails
+﻿namespace ProjectB.Clients.Models.HotelDetails;
+
+public class Brand
 {
-    public class Brand
-    {
-        public double Scale { get; set; }
+    public double Scale { get; set; }
 
-        public string FormattedScale { get; set; }
+    public string FormattedScale { get; set; }
 
-        public double Rating { get; set; }
+    public double Rating { get; set; }
 
-        public string FormattedRating { get; set; }
+    public string FormattedRating { get; set; }
 
-        public bool LowRating { get; set; }
+    public bool LowRating { get; set; }
 
-        public string BadgeText { get; set; }
+    public string BadgeText { get; set; }
 
-        public int Total { get; set; }
-    }
+    public int Total { get; set; }
 }

@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace ProjectB.Clients.Models.HotelDetails
+﻿namespace ProjectB.Clients.Models.HotelDetails
 {
     public class Address
     {

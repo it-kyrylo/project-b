@@ -1,9 +1,8 @@
-﻿namespace ProjectB.Clients.Models.HotelDetails
-{
-    public class CurrentPrice
-    {
-        public string Formatted { get; set; }
+﻿namespace ProjectB.Clients.Models.HotelDetails;
 
-        public decimal Plain { get; set; }
-    }
+public class CurrentPrice
+{
+    public string Formatted { get; set; }
+
+    public decimal Plain { get; set; }
 }

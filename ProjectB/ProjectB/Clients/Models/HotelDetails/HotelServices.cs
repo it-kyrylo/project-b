@@ -1,8 +1,6 @@
-﻿using System.Text.Json.Serialization;
-
-namespace ProjectB.Clients.Models.HotelDetails
+﻿namespace ProjectB.Clients.Models.HotelDetails
 {
-    public class HotelService
+    public class HotelServices
     {
         public string Heading { get; set; }
 

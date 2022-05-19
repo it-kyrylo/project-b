@@ -1,16 +1,8 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Telegram.Bot;
-using Telegram.Bot.Extensions.Polling;
-using Telegram.Bot.Types;
+﻿namespace ProjectB.Handlers;
 
-namespace ProjectB.Handlers
+public interface ITelegramUpdateHandler
 {
-    public interface ITelegramUpdateHandler
-    {
-        Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken);
+    Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken);
 
-        Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken);
-    }
+    Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken);
 }

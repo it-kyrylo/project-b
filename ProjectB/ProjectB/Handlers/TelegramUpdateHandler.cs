@@ -1,15 +1,4 @@
-﻿using ProjectB.Enums;
-using ProjectB.Factories;
-using ProjectB.Services;
-using ProjectB.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Telegram.Bot;
-using Telegram.Bot.Exceptions;
-using Telegram.Bot.Types;
+﻿using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types.Enums;
 
 namespace ProjectB.Handlers
