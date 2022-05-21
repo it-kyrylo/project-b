@@ -17,14 +17,19 @@ public class HotelInfoState : IState
         return State.HotelInfoState;
     }
 
-    public Task<State> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
-    => Task.FromResult(State.HotelInfoState);
+    public async Task<State> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
+    => await Task.FromResult(State.HotelInfoState);
 
     public async Task BotSendMessage(ITelegramBotClient botClient, long chatId)
     {
         var hotelId = await _cosmosDbService.GetHotelIdByChatIdAsync(chatId.ToString());
         var checkIn = await _cosmosDbService.GetCheckInDateByChatIdAsync(chatId.ToString());
         var checkOut = await _cosmosDbService.GetCheckOutDateByChatIdAsync(chatId.ToString());
+
+        if (!int.TryParse(hotelId, out int result))
+        {
+            throw new ArgumentException("Wrong Hotel please try again");
+        }
         
         var hotel = await _hotelService.GetHotelDetailsById(int.Parse(hotelId), checkIn, checkOut);
         hotel.BookingLink = hotel.BookingLink.Replace("id", hotelId.ToString());

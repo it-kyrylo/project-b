@@ -8,8 +8,8 @@ public class CheckOutState : IState
         return State.CheckOutState;
     }
 
-    public Task<State> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
-    => Task.FromResult(State.CheckOutState);
+    public async Task<State> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
+    => await Task.FromResult(State.CheckOutState);
 
     public async Task BotSendMessage(ITelegramBotClient botClient, long chatId)
     {

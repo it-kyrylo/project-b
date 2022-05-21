@@ -17,23 +17,23 @@
 
   <ItemGroup Label="Global Usings">
     <Using Include="System.Text.Json.Serialization" />
-    <Using Include="Refit"/>
-    <Using Include="AutoMapper"/>
-    <Using Include="Telegram.Bot"/>
-    <Using Include="Telegram.Bot.Types"/>
-    <Using Include="Telegram.Bot.Types.ReplyMarkups"/>
-    <Using Include="ProjectB.Clients.Models"/>
-    <Using Include="ProjectB.Clients.Models.HotelDetails"/>
-    <Using Include="ProjectB.Clients.Models.Hotels"/>
-    <Using Include="ProjectB.Enums"/>
-    <Using Include="ProjectB.Services"/>
-    <Using Include="ProjectB.States"/>
-    <Using Include="ProjectB.Factories"/>
-    <Using Include="ProjectB.Handlers"/>
-    <Using Include="ProjectB.Clients"/>
-    <Using Include="ProjectB.ViewModels"/>
-    <Using Include="ProjectB.Repositories"/>
-    <Using Include="ProjectB.Infrastructure"/>
+    <Using Include="Refit" />
+    <Using Include="AutoMapper" />
+    <Using Include="Telegram.Bot" />
+    <Using Include="Telegram.Bot.Types" />
+    <Using Include="Telegram.Bot.Types.ReplyMarkups" />
+    <Using Include="ProjectB.Clients.Models" />
+    <Using Include="ProjectB.Clients.Models.HotelDetails" />
+    <Using Include="ProjectB.Clients.Models.Hotels" />
+    <Using Include="ProjectB.Enums" />
+    <Using Include="ProjectB.Services" />
+    <Using Include="ProjectB.States" />
+    <Using Include="ProjectB.Factories" />
+    <Using Include="ProjectB.Handlers" />
+    <Using Include="ProjectB.Clients" />
+    <Using Include="ProjectB.ViewModels" />
+    <Using Include="ProjectB.Repositories" />
+    <Using Include="ProjectB.Infrastructure" />
   </ItemGroup>
   
 </Project>

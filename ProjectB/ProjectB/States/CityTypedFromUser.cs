@@ -4,11 +4,14 @@ public class CityTypedFromUser : IState
 {
     private IHotelService _hotelService;
     private ICosmosDbService<UserInformation> _cosmosDbService;
+    private ICacheFilter<string> _hotelCache;
 
-    public CityTypedFromUser(IHotelService hotelService, ICosmosDbService<UserInformation> cosmosDbService)
+    public CityTypedFromUser(IHotelService hotelService, ICosmosDbService<UserInformation> cosmosDbService,
+        ICacheFilter<string> hotelCache)
     {
         _hotelService = hotelService;
         _cosmosDbService = cosmosDbService;
+        _hotelCache = hotelCache;
     }
 
     public async Task<State> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
@@ -27,18 +30,23 @@ public class CityTypedFromUser : IState
         return State.CityTypedFromUserState;
     }
 
-    
+
 
     public async Task BotSendMessage(ITelegramBotClient botClient, long chatId, string cityName)
     {
+        if (cityName == "Show HotelInfo")
+        {
+            cityName = _hotelCache.Get(chatId.ToString());
+        }
+        _hotelCache.Set(chatId.ToString(), cityName);
         var hotels = await _hotelService.GetDestinationIdAsync(cityName);
         var buttons = new List<InlineKeyboardButton[]>();
         foreach (var hotel in hotels)
         {
             var button = new[]
             {
-                InlineKeyboardButton.WithCallbackData(hotel.HotelName,hotel.Id.ToString())
-            };
+                    InlineKeyboardButton.WithCallbackData(hotel.HotelName,hotel.Id.ToString())
+                };
             buttons.Add(button);
         }
 
@@ -48,6 +56,6 @@ public class CityTypedFromUser : IState
         await botClient.SendTextMessageAsync(chatId, message.Text, replyMarkup: inlineKeyboard);
     }
 
-    public Task BotSendMessage(ITelegramBotClient botClient, long chatId)
-    => Task.FromResult(State.CityTypedFromUserState);
+    public async Task BotSendMessage(ITelegramBotClient botClient, long chatId)
+    => await Task.FromResult(State.CityTypedFromUserState);
 }

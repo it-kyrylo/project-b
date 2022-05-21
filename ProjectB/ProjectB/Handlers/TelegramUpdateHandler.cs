@@ -21,10 +21,11 @@ namespace ProjectB.Handlers
                 return;
             }
 
-            var chatId = update.Message != null ? update.Message.Chat.Id : update.CallbackQuery.Message.Chat.Id;
+            var chatId = GetChatId(update);
             var states = Enum.GetValues<State>();
             var currentState = states[_count];
             var state = _statefactory.GetState(currentState);
+
             if (update.Type == Telegram.Bot.Types.Enums.UpdateType.Message)
             {
                 if (update.Message.Text.ToString().ToLower() == "/start")
@@ -48,7 +49,7 @@ namespace ProjectB.Handlers
                 HandleCommunication(botClient, update, state);
                 _count = 0;
             }
-            else if(currentState != State.MainState)
+            else if (currentState != State.MainState)
             {
                 HandleCommunication(botClient, update, state);
             }
@@ -70,7 +71,7 @@ namespace ProjectB.Handlers
                 {
                     currentState = states[_count];
                 }
-                else if(_count + 1 == states.Length)
+                else if (_count + 1 == states.Length)
                 {
                     _count = 0;
                     currentState = states[_count];
@@ -82,14 +83,23 @@ namespace ProjectB.Handlers
             }
         }
 
-        private void HandleCommunication(ITelegramBotClient botClient, Update update, States.IState state)
+        private async void HandleCommunication(ITelegramBotClient botClient, Update update, States.IState state)
         {
-            var handler = update.Type switch
+
+            try
             {
-                UpdateType.Message => state.BotOnMessageReceived(botClient, update.Message).Result,
-                UpdateType.CallbackQuery => state.BotOnCallBackQueryReceived(botClient, update.CallbackQuery).Result,
-                _ => UnknownUpdateHandlerAsync(botClient, update).Result
-            };
+                var handler = update.Type switch
+                {
+                    UpdateType.Message => await state.BotOnMessageReceived(botClient, update.Message),
+                    UpdateType.CallbackQuery => await state.BotOnCallBackQueryReceived(botClient, update.CallbackQuery),
+                    _ => await UnknownUpdateHandlerAsync(botClient, update)
+                };
+            }
+            catch (Exception ex)
+            {
+                await botClient.SendTextMessageAsync(GetChatId(update), ex.Message);
+                RepeatState(ex, botClient, update);
+            }
         }
 
         public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
@@ -105,11 +115,31 @@ namespace ProjectB.Handlers
             return Task.CompletedTask;
         }
 
-        private Task<State> UnknownUpdateHandlerAsync(ITelegramBotClient botClient, Update update)
+        private async Task<State> UnknownUpdateHandlerAsync(ITelegramBotClient botClient, Update update)
         {
-            botClient.SendTextMessageAsync(update.Message.Chat.Id, "Something went wrong! Please try again");
+            await botClient.SendTextMessageAsync(update.Message.Chat.Id, "Something went wrong! Please try again");
 
-            return Task.Run(() => State.MainState);
+            return await Task.Run(() => State.MainState);
         }
-}
+
+        private long GetChatId(Update update)
+        {
+            return update.Message != null ? update.Message.Chat.Id : update.CallbackQuery.Message.Chat.Id;
+        }
+
+        private void RepeatState(Exception ex, ITelegramBotClient botClient, Update update)
+        {
+            if (ex.StackTrace.Contains("GetDestinationIdAsync"))
+            {
+                _count = (int)State.CityTypedFromUserState;
+                HandleCommunication(botClient, update, _statefactory.GetState(State.CitySelectState));
+            }
+            else if (ex.StackTrace.Contains("HotelInfoState"))
+            {
+                _count = (int)State.HotelSelectState;
+                HandleCommunication(botClient, update, _statefactory.GetState(State.CityTypedFromUserState));
+            }
+
+        }
+    }
 }

@@ -16,8 +16,8 @@ public class CitySelectState : IState
         return State.CitySelectState;
     }
 
-    public Task<State> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
-    => Task.FromResult(State.CitySelectState);
+    public async Task<State> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
+    => await Task.FromResult(State.CitySelectState);
 
     public async Task BotSendMessage(ITelegramBotClient botClient, long chatId)
     {

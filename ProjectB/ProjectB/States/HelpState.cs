@@ -8,8 +8,8 @@ public class HelpState : IState
         return State.HelpState;
     }
 
-    public Task<State> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
-    => Task.FromResult(State.HelpState);
+    public async Task<State> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
+    => await Task.FromResult(State.HelpState);
 
     public async Task BotSendMessage(ITelegramBotClient botClient, long chatId)
     {

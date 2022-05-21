@@ -1,5 +1,6 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.OpenApi.Models;
+using ProjectB.Validators;
 
 namespace ProjectB
 {
@@ -43,6 +44,7 @@ namespace ProjectB
             services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(telegramTokenApi));
             services.AddSingleton<ITelegramUpdateHandler, TelegramUpdateHandler>();
             services.AddSingleton<IStateFactory, StateFactory>();
+            services.AddSingleton<IValidator, Validator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

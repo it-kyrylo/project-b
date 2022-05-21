@@ -19,8 +19,8 @@ public class CheckOutSelectState : IState
         return State.CheckOutSelectState;
     }
 
-    public Task<State> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
-    => Task.FromResult(State.CheckOutSelectState);
+    public async Task<State> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
+    => await Task.FromResult(State.CheckOutSelectState);
 
     public async Task BotSendMessage(ITelegramBotClient botClient, long chatId)
     {

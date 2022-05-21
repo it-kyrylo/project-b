@@ -19,8 +19,8 @@ public class HotelSelectState : IState
         return State.HotelSelectState;
     }
 
-    public Task<State> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
-    => Task.FromResult(State.HotelSelectState);
+    public async Task<State> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
+    => await Task.FromResult(State.HotelSelectState);
 
     public async Task BotSendMessage(ITelegramBotClient botClient, long chatId)
     {

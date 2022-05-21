@@ -1,16 +1,21 @@
-﻿namespace ProjectB.Services;
+﻿using ProjectB.Validators;
+
+namespace ProjectB.Services;
 
 public class HotelService : IHotelService
 {
     private IHotelClients hotelClients;
     private IMapper mapper;
     private readonly ICacheFilter<HotelOverview> _hotelOverviewCache;
+    private readonly IValidator _validator;
 
-    public HotelService(IHotelClients hotelClients, IMapper mapper, ICacheFilter<HotelOverview> hotelOverviewCache)
+    public HotelService(IHotelClients hotelClients, IMapper mapper, 
+        ICacheFilter<HotelOverview> hotelOverviewCache, IValidator validator)
     {
         this.hotelClients = hotelClients;
         this.mapper = mapper;
         _hotelOverviewCache = hotelOverviewCache;
+        _validator = validator;
     }
 
     public async Task<ICollection<HotelsViewModel>> GetDestinationIdAsync(string cityName)
@@ -18,7 +23,7 @@ public class HotelService : IHotelService
         var destination = await this.hotelClients.GetDestination(cityName);
 
 
-        var destinationId = 0;
+        var destinationId = int.MinValue;
         foreach (var item in destination.Suggestions)
         {
             foreach (var number in item.CityProperties)
@@ -28,6 +33,12 @@ public class HotelService : IHotelService
             }
             break;
         }
+
+        if (!_validator.ValidateDestination(destinationId))
+        {
+            throw new ArgumentException($"Wrong destination please try again");
+        }
+        
 
         return await GetHotelsByDestinationIdAsync(destinationId);
     }
